@@ -1,6 +1,6 @@
 // turnRight.cpp
 #include <Arduino.h>
-#include <turnRight.h>
+#include <turnLeft.h>
 //#include <encoderUtils.h>
 // Задаём распиновку L298N
 #define IN1 27
@@ -16,15 +16,15 @@ const float WHEEL_DIAMETER = 0.07; // диаметр колеса (метры)
 const float TRACK_WIDTH = 0.13;     // база между колесами (метры)
 const int SLOTS = 20;               // количество прорезей/импульсов на 1 оборот
 
-volatile unsigned long pulseCount3 = 0;
+volatile unsigned long pulseCount2 = 0;
 
 // Обработчик прерываний энкодера
-void IRAM_ATTR encoderISR3() {
-  pulseCount3++;
+void IRAM_ATTR encoderISR2() {
+  pulseCount2++;
 }
 
 // Инициализация пинов моторов и энкодера (вызвать в setup)
-void setupTurnRight() {
+void setupTurnLeft() {
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
   pinMode(IN3, OUTPUT);
@@ -32,13 +32,13 @@ void setupTurnRight() {
   pinMode(ENCODER_PIN, INPUT);
 
   // Прерывание на оптопаре (подъем фронта)
-  attachInterrupt(digitalPinToInterrupt(ENCODER_PIN), encoderISR3, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_PIN), encoderISR2, RISING);
 
   Serial.begin(115200);
 }
 
 // Функция для расчёта количества импульсов
-unsigned long calculatePulses3(float angle) {
+unsigned long calculatePulses2(float angle) {
   // Радиус поворота для полного разворота = половина расстояния между колесами
   float robotCircumference = PI * TRACK_WIDTH;
   // Длина дуги, которую должно пройти колесо при повороте робота на 'angle'
@@ -50,10 +50,10 @@ unsigned long calculatePulses3(float angle) {
 }
 
 // Главная функция поворота (вызвать в main.cpp: turnRight(angle);)
-void turnRight(float angle) {
-  pulseCount3 = 0;  // сбросить счётчик
+void turnLeft(float angle) {
+  pulseCount2 = 0;  // сбросить счётчик
 
-  unsigned long targetPulses = calculatePulses3(angle);
+  unsigned long targetPulses = calculatePulses2(angle);
 
   Serial.print("Поворот на: ");
   Serial.print(angle);
@@ -61,16 +61,16 @@ void turnRight(float angle) {
   Serial.println(targetPulses);
 
   // Запуск: левое колесо вперед, правое назад (разворот на месте)
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
 
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
 
   // Крутим до достижения нужного количества импульсов
-  while (pulseCount3 < targetPulses) {
+  while (pulseCount2 < targetPulses) {
     Serial.print("Текущий счётчик импульсов: ");
-    Serial.println(pulseCount3);
+    Serial.println(pulseCount2);
     delay(10);
   }
 
