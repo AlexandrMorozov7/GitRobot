@@ -1,18 +1,14 @@
 #include <Arduino.h>
-
+#include <turnRight.h>
 // put function declarations here:
 int myFunction(int, int);
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  setupTurnRight();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    turnRight(60); // поворот на 60 градусов
+  delay(5000);   // подождать для следующей команды
 }
