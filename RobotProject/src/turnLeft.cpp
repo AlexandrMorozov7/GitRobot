@@ -1,7 +1,7 @@
 // turnRight.cpp
 #include <Arduino.h>
 #include <turnLeft.h>
-//#include <encoderUtils.h>
+#include <encoderUtils.h>
 // Задаём распиновку L298N
 #define IN1 27
 #define IN2 26
@@ -16,12 +16,8 @@ const float WHEEL_DIAMETER = 0.07; // диаметр колеса (метры)
 const float TRACK_WIDTH = 0.13;     // база между колесами (метры)
 const int SLOTS = 20;               // количество прорезей/импульсов на 1 оборот
 
-volatile unsigned long pulseCount2 = 0;
 
-// Обработчик прерываний энкодера
-void IRAM_ATTR encoderISR2() {
-  pulseCount2++;
-}
+
 
 // Инициализация пинов моторов и энкодера (вызвать в setup)
 void setupTurnLeft() {
@@ -31,8 +27,7 @@ void setupTurnLeft() {
   pinMode(IN4, OUTPUT);
   pinMode(ENCODER_PIN, INPUT);
 
-  // Прерывание на оптопаре (подъем фронта)
-  attachInterrupt(digitalPinToInterrupt(ENCODER_PIN), encoderISR2, RISING);
+
 
   Serial.begin(115200);
 }
@@ -51,7 +46,7 @@ unsigned long calculatePulses2(float angle) {
 
 // Главная функция поворота (вызвать в main.cpp: turnRight(angle);)
 void turnLeft(float angle) {
-  pulseCount2 = 0;  // сбросить счётчик
+  pulseCount = 0;  // сбросить счётчик
 
   unsigned long targetPulses = calculatePulses2(angle);
 
@@ -61,16 +56,16 @@ void turnLeft(float angle) {
   Serial.println(targetPulses);
 
   // Запуск: левое колесо вперед, правое назад (разворот на месте)
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
 
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
 
   // Крутим до достижения нужного количества импульсов
-  while (pulseCount2 < targetPulses) {
+  while (pulseCount < targetPulses) {
     Serial.print("Текущий счётчик импульсов: ");
-    Serial.println(pulseCount2);
+    Serial.println(pulseCount);
     delay(10);
   }
 
@@ -79,6 +74,6 @@ void turnLeft(float angle) {
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, LOW);
-
+  delay(5000);
   Serial.println("Поворот завершён.");
 }

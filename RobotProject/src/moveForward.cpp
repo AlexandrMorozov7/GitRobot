@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <moveForward.h>
-//#include <encoderUtils.h>
+#include <encoderUtils.h>
 // Пины моторов
 #define IN1 27
 #define IN2 26
@@ -13,11 +13,7 @@
 const float WHEEL_DIAMETER = 0.07; // метры
 const int SLOTS = 20;              // количество отверстий (импульсов на один оборот)
 
-volatile unsigned long pulseCount1 = 0;
 
-void IRAM_ATTR encoderISR1() {
-  pulseCount1++;
-}
 
 // Инициализация пинов и прерываний энкодера
 void setupMoveForward() {
@@ -27,7 +23,6 @@ void setupMoveForward() {
   pinMode(IN4, OUTPUT);
   pinMode(ENCODER_PIN, INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(ENCODER_PIN), encoderISR1, RISING);
 
   Serial.begin(115200);
 }
@@ -41,7 +36,7 @@ unsigned long calculatePulses1(float distance_m) {
 
 // Основная функция: проехать distance_m метров вперёд
 void moveForwardDistance(float distance_m) {
-  pulseCount1 = 0;
+  pulseCount = 0;
 
   unsigned long targetPulses = calculatePulses1(distance_m);
 
@@ -56,9 +51,9 @@ void moveForwardDistance(float distance_m) {
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
 
-  while (pulseCount1 < targetPulses) {
+  while (pulseCount < targetPulses) {
     Serial.print("Текущий счётчик импульсов: ");
-    Serial.println(pulseCount1);
+    Serial.println(pulseCount);
     delay(10);
   }
 
@@ -67,6 +62,6 @@ void moveForwardDistance(float distance_m) {
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, LOW);
-
+  delay(5000);
   Serial.println("Движение завершено.");
 }

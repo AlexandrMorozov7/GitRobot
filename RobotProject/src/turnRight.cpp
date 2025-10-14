@@ -1,7 +1,7 @@
 // turnRight.cpp
 #include <Arduino.h>
 #include <turnRight.h>
-//#include <encoderUtils.h>
+#include <encoderUtils.h>
 // Задаём распиновку L298N
 #define IN1 27
 #define IN2 26
@@ -16,12 +16,7 @@ const float WHEEL_DIAMETER = 0.07; // диаметр колеса (метры)
 const float TRACK_WIDTH = 0.13;     // база между колесами (метры)
 const int SLOTS = 20;               // количество прорезей/импульсов на 1 оборот
 
-volatile unsigned long pulseCount3 = 0;
 
-// Обработчик прерываний энкодера
-void IRAM_ATTR encoderISR3() {
-  pulseCount3++;
-}
 
 // Инициализация пинов моторов и энкодера (вызвать в setup)
 void setupTurnRight() {
@@ -31,8 +26,7 @@ void setupTurnRight() {
   pinMode(IN4, OUTPUT);
   pinMode(ENCODER_PIN, INPUT);
 
-  // Прерывание на оптопаре (подъем фронта)
-  attachInterrupt(digitalPinToInterrupt(ENCODER_PIN), encoderISR3, RISING);
+
 
   Serial.begin(115200);
 }
@@ -51,7 +45,7 @@ unsigned long calculatePulses3(float angle) {
 
 // Главная функция поворота (вызвать в main.cpp: turnRight(angle);)
 void turnRight(float angle) {
-  pulseCount3 = 0;  // сбросить счётчик
+  pulseCount = 0;  // сбросить счётчик
 
   unsigned long targetPulses = calculatePulses3(angle);
 
@@ -61,16 +55,16 @@ void turnRight(float angle) {
   Serial.println(targetPulses);
 
   // Запуск: левое колесо вперед, правое назад (разворот на месте)
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
 
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
 
   // Крутим до достижения нужного количества импульсов
-  while (pulseCount3 < targetPulses) {
+  while (pulseCount < targetPulses) {
     Serial.print("Текущий счётчик импульсов: ");
-    Serial.println(pulseCount3);
+    Serial.println(pulseCount);
     delay(10);
   }
 
@@ -79,6 +73,6 @@ void turnRight(float angle) {
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, LOW);
-
+  delay(5000);
   Serial.println("Поворот завершён.");
 }
