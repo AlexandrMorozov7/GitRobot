@@ -1,7 +1,10 @@
 // turnRight.cpp
 #include <Arduino.h>
 #include <turnRight.h>
+<<<<<<< HEAD
 #include <encoderUtils.h>
+=======
+>>>>>>> parent of 4fd923d (Реализовано демо движения по т-и.)
 // Задаём распиновку L298N
 #define IN1 27
 #define IN2 26
@@ -12,11 +15,20 @@
 #define ENCODER_PIN 34
 
 // Физические параметры — если изменятся, только здесь
-const float WHEEL_DIAMETER = 0.07; // диаметр колеса (метры)
+const float WHEEL_DIAMETER = 0.065; // диаметр колеса (метры)
 const float TRACK_WIDTH = 0.13;     // база между колесами (метры)
 const int SLOTS = 20;               // количество прорезей/импульсов на 1 оборот
 
+<<<<<<< HEAD
 
+=======
+volatile unsigned long pulseCount = 0;
+
+// Обработчик прерываний энкодера
+void IRAM_ATTR encoderISR() {
+  pulseCount++;
+}
+>>>>>>> parent of 4fd923d (Реализовано демо движения по т-и.)
 
 // Инициализация пинов моторов и энкодера (вызвать в setup)
 void setupTurnRight() {
@@ -26,13 +38,18 @@ void setupTurnRight() {
   pinMode(IN4, OUTPUT);
   pinMode(ENCODER_PIN, INPUT);
 
+<<<<<<< HEAD
 
+=======
+  // Прерывание на оптопаре (подъем фронта)
+  attachInterrupt(digitalPinToInterrupt(ENCODER_PIN), encoderISR, RISING);
+>>>>>>> parent of 4fd923d (Реализовано демо движения по т-и.)
 
   Serial.begin(115200);
 }
 
 // Функция для расчёта количества импульсов
-unsigned long calculatePulses3(float angle) {
+unsigned long calculatePulses(float angle) {
   // Радиус поворота для полного разворота = половина расстояния между колесами
   float robotCircumference = PI * TRACK_WIDTH;
   // Длина дуги, которую должно пройти колесо при повороте робота на 'angle'
@@ -47,7 +64,7 @@ unsigned long calculatePulses3(float angle) {
 void turnRight(float angle) {
   pulseCount = 0;  // сбросить счётчик
 
-  unsigned long targetPulses = calculatePulses3(angle);
+  unsigned long targetPulses = calculatePulses(angle);
 
   Serial.print("Поворот на: ");
   Serial.print(angle);
